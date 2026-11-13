@@ -1,0 +1,955 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shell and Git Field Guide</title>
+<meta name="description" content="A practical, Windows-friendly learning guide to the Unix shell, scripts, remote servers, Git and GitHub, built from a Software Carpentry workshop.">
+<style>
+  :root {
+    --bg: #fbfaf7; --surface: #ffffff; --ink: #1d1d1b; --muted: #5f5d57; --line: #e4e1d8;
+    --accent: #b8860b; --accent-soft: #fbf3dc; --code-bg: #1f1f1d; --code-ink: #f1efe8;
+    --good: #15803d; --good-soft: #e8f5ec; --warn: #b45309; --warn-soft: #fdf1e3; --bad: #b91c1c; --bad-soft: #fbeaea;
+    --tip: #1d4ed8; --tip-soft: #e9effc;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #151514; --surface: #1e1e1c; --ink: #ecebe6; --muted: #a6a39a; --line: #33322e;
+      --accent: #e0b04a; --accent-soft: #2a2416; --code-bg: #0e0e0d; --code-ink: #ecebe6;
+      --good: #4ade80; --good-soft: #15291c; --warn: #fbbf24; --warn-soft: #2d2412; --bad: #f87171; --bad-soft: #2e1717;
+      --tip: #93b4ff; --tip-soft: #182033;
+    }
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 16px; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.65 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  a { color: var(--accent); text-underline-offset: 2px; }
+  code, pre, kbd { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; }
+  :not(pre) > code { background: var(--accent-soft); padding: 1px 5px; border-radius: 4px; font-size: .92em; }
+  kbd { border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4px; padding: 0 5px; font-size: .88em; background: var(--surface); }
+
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr); max-width: 1220px; margin: 0 auto; }
+  @media (min-width: 1000px) { .layout { grid-template-columns: 270px minmax(0, 1fr); gap: 32px; padding: 0 24px; } }
+
+  nav.toc { display: none; }
+  @media (min-width: 1000px) {
+    nav.toc { display: block; position: sticky; top: 0; align-self: start; max-height: 100vh; overflow-y: auto; padding: 28px 0 40px; font-size: 14px; }
+  }
+  .toc h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin: 0 0 10px; }
+  .toc ol { list-style: none; padding: 0; margin: 0; }
+  .toc li { margin: 1px 0; }
+  .toc a { display: flex; gap: 8px; align-items: baseline; color: var(--ink); text-decoration: none; padding: 4px 8px; border-radius: 6px; }
+  .toc a:hover, .toc a.active { background: var(--accent-soft); }
+  .toc .n { color: var(--muted); font-variant-numeric: tabular-nums; min-width: 20px; }
+  .toc .done-mark { margin-left: auto; color: var(--good); font-size: 12px; visibility: hidden; }
+  .toc a.done .done-mark { visibility: visible; }
+  .progress { margin: 14px 8px 0; font-size: 13px; color: var(--muted); }
+  .bar { height: 6px; background: var(--line); border-radius: 4px; margin-top: 6px; overflow: hidden; }
+  .bar > div { height: 100%; background: var(--accent); width: 0; transition: width .3s; }
+
+  main { padding: 0 16px 80px; min-width: 0; }
+  .hero { padding: 40px 0 28px; border-bottom: 1px solid var(--line); }
+  .back { font-size: 14px; }
+  .hero h1 { font-size: clamp(32px, 6vw, 50px); line-height: 1.08; margin: 8px 0 12px; }
+  .hero p { font-size: 18px; color: var(--muted); max-width: 680px; margin: 0 0 18px; }
+  .pillrow { display: flex; flex-wrap: wrap; gap: 8px; }
+  .pill { font-size: 13px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--muted); }
+
+  section.ch { padding: 40px 0 8px; border-bottom: 1px solid var(--line); }
+  .ch-head { display: flex; gap: 14px; align-items: baseline; flex-wrap: wrap; }
+  .ch-num { font-size: 13px; font-weight: 700; color: var(--accent); letter-spacing: .06em; text-transform: uppercase; }
+  section.ch h2 { font-size: clamp(24px, 3.4vw, 30px); margin: 2px 0 6px; line-height: 1.2; }
+  .why { font-size: 17px; color: var(--muted); margin: 0 0 20px; max-width: 760px; }
+  h3 { font-size: 19px; margin: 28px 0 8px; }
+  p, ul, ol { max-width: 800px; }
+  li { margin: 3px 0; }
+
+  pre { position: relative; background: var(--code-bg); color: var(--code-ink); border-radius: 10px; padding: 14px 16px; overflow-x: auto; font-size: 14px; line-height: 1.55; margin: 12px 0; max-width: 860px; }
+  pre .c { color: #9a968a; }
+  .copy { position: absolute; top: 8px; right: 8px; font: 12px system-ui, sans-serif; background: #3a3936; color: #f1efe8; border: 0; border-radius: 6px; padding: 3px 8px; cursor: pointer; opacity: .7; }
+  .copy:hover { opacity: 1; }
+
+  .tw { overflow-x: auto; max-width: 900px; margin: 12px 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 15px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); background: var(--bg); }
+  tr:last-child td { border-bottom: 0; }
+  td code { white-space: nowrap; }
+
+  .box { border-radius: 10px; padding: 12px 16px; margin: 14px 0; max-width: 860px; border-left: 4px solid; }
+  .box p { margin: 4px 0; }
+  .box b.t { display: block; margin-bottom: 2px; }
+  .tip { background: var(--tip-soft); border-color: var(--tip); }
+  .warn { background: var(--warn-soft); border-color: var(--warn); }
+  .danger { background: var(--bad-soft); border-color: var(--bad); }
+  .win { background: var(--accent-soft); border-color: var(--accent); }
+  .ai { background: var(--good-soft); border-color: var(--good); }
+
+  details.q { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 16px; margin: 10px 0; max-width: 860px; }
+  details.q summary { cursor: pointer; font-weight: 600; list-style: none; }
+  details.q summary::-webkit-details-marker { display: none; }
+  details.q summary::before { content: "▸ "; color: var(--accent); }
+  details.q[open] summary::before { content: "▾ "; }
+  details.q .a { border-top: 1px dashed var(--line); margin-top: 10px; padding-top: 8px; }
+  .lvl { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; padding: 1px 7px; border-radius: 999px; margin-left: 6px; vertical-align: 2px; }
+  .lvl.e { background: var(--good-soft); color: var(--good); }
+  .lvl.m { background: var(--warn-soft); color: var(--warn); }
+  .lvl.h { background: var(--bad-soft); color: var(--bad); }
+
+  .mark { display: flex; align-items: center; gap: 10px; margin: 26px 0 30px; padding: 12px 16px; border: 1px dashed var(--line); border-radius: 10px; max-width: 860px; cursor: pointer; user-select: none; }
+  .mark input { width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer; }
+  .mark.on { border-style: solid; border-color: var(--good); background: var(--good-soft); }
+
+  .diagram { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; font-family: ui-monospace, Consolas, monospace; font-size: 14px; white-space: pre; overflow-x: auto; max-width: 860px; line-height: 1.5; }
+
+  .search { width: 100%; max-width: 480px; font: inherit; padding: 9px 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); margin: 6px 0 10px; }
+  .grid2 { display: grid; gap: 14px; grid-template-columns: 1fr; max-width: 900px; }
+  @media (min-width: 760px) { .grid2 { grid-template-columns: 1fr 1fr; } }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; }
+  .card h4 { margin: 0 0 4px; font-size: 16px; }
+  .card p { margin: 0; color: var(--muted); font-size: 15px; }
+  footer { padding: 30px 0; color: var(--muted); font-size: 14px; }
+  .mobile-toc { display: block; margin: 18px 0 0; }
+  @media (min-width: 1000px) { .mobile-toc { display: none; } }
+  .mobile-toc select { font: inherit; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); width: 100%; max-width: 420px; }
+</style>
+</head>
+<body>
+<div class="layout">
+
+<nav class="toc" aria-label="Chapters">
+  <h2>Chapters</h2>
+  <ol id="tocList"></ol>
+  <div class="progress"><span id="progText">0 of 0 chapters done</span><div class="bar"><div id="progBar"></div></div></div>
+</nav>
+
+<main>
+  <header class="hero">
+    <a class="back" href="./">← Shell Lesson Data</a>
+    <h1>The Shell &amp; Git Field Guide</h1>
+    <p>Everything from a hands-on Carpentries workshop, rewritten as a guide you can actually learn from: the commands, the reasons behind them, the traps people really fall into, and practice to lock it in. Written for researchers on Windows who use AI assistants and want to know enough to use them wisely.</p>
+    <div class="pillrow">
+      <span class="pill">18 chapters</span><span class="pill">Windows + Git Bash friendly</span><span class="pill">Practice questions with answers</span><span class="pill">Progress saved in your browser</span>
+    </div>
+    <div class="mobile-toc"><select id="jump" aria-label="Jump to chapter"><option value="">Jump to a chapter…</option></select></div>
+  </header>
+
+  <!-- 0 -->
+  <section class="ch" id="start" data-title="Start here">
+    <div class="ch-head"><span class="ch-num">Chapter 0</span></div>
+    <h2>Start here: why bother?</h2>
+    <p class="why">The shell looks old-fashioned until you have 500 files to rename, a server with no mouse, or a reviewer asking exactly how a result was produced.</p>
+
+    <h3>The one-paragraph version</h3>
+    <p>The <b>shell</b> is a program where you type commands instead of clicking. <b>Bash</b> is the most common shell and the little language it understands. <b>Git</b> keeps a history of every version of your project. <b>GitHub</b> stores a copy online so you can back up, share and publish. Together they let you do research work that is <b>scalable</b>, <b>repeatable</b>, and <b>explainable</b>.</p>
+
+    <div class="grid2">
+      <div class="card"><h4>Scale</h4><p>Clicking works for 5 files. One line of shell handles 5,000 the same way.</p></div>
+      <div class="card"><h4>Servers</h4><p>HPC clusters and GPU machines have no desktop. The shell is the only way in.</p></div>
+      <div class="card"><h4>Everything assumes it</h4><p>Git, Python environments, Docker, installers and READMEs are written as shell commands.</p></div>
+      <div class="card"><h4>Reproducibility</h4><p>Clicks leave no trace. Commands can be saved, re-run and shown to someone else.</p></div>
+    </div>
+
+    <h3>How the pieces fit</h3>
+    <div class="tw"><table>
+      <thead><tr><th>Tool</th><th>Job</th><th>Analogy</th></tr></thead>
+      <tbody>
+        <tr><td>Shell</td><td>Find, organise and process files; run programs; automate</td><td>Your hands</td></tr>
+        <tr><td>Scripts</td><td>Saved sequences of shell commands</td><td>A written recipe</td></tr>
+        <tr><td>Git</td><td>History of every change; undo</td><td>A lab notebook that never loses a page</td></tr>
+        <tr><td>GitHub</td><td>Online copy for backup, sharing, websites</td><td>The shared lab drive</td></tr>
+        <tr><td>R / Python</td><td>The actual analysis</td><td>The instrument</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="box ai"><b class="t">Using AI assistants wisely</b>
+      <p>AI is great at writing a tricky one-liner, a loop or a regex. It is also often wrong in ways that only the basics reveal: commands for the <b>wrong shell</b> (PowerShell vs bash, Mac vs Linux), the <b>wrong folder</b>, or dangerous "fixes" like <code>chmod 777</code>.</p>
+      <p><b>Do yourself:</b> moving around, looking at files, copying, moving, deleting, the Git cycle. <b>Ask AI for:</b> complex pipelines, loops, regex, unfamiliar tools. <b>Always:</b> read what it gives you and be able to say what each piece does <i>before</i> you press Enter.</p>
+    </div>
+
+    <h3>The habit that prevents most problems</h3>
+    <p>Before you act: <b>where am I?</b> (<code>pwd</code>) → <b>what's here?</b> (<code>ls</code>) → <b>then</b> act. Most errors in this guide come down to skipping that.</p>
+    <label class="mark"><input type="checkbox" data-ch="start"> I've read this chapter</label>
+  </section>
+
+  <!-- 1 -->
+  <section class="ch" id="setup" data-title="Setup on Windows">
+    <div class="ch-head"><span class="ch-num">Chapter 1</span></div>
+    <h2>Setup on Windows (and why your screen looks different)</h2>
+    <p class="why">Most tutorials are filmed on a Mac or Linux. On Windows a handful of differences cause most of the early confusion. Learn them once.</p>
+
+    <h3>Three different terminals</h3>
+    <div class="tw"><table>
+      <thead><tr><th></th><th>PowerShell</th><th>Git Bash</th><th>WSL</th></tr></thead>
+      <tbody>
+        <tr><td>What it is</td><td>Microsoft's own shell</td><td>Bash + Unix tools for Windows (comes with Git)</td><td>A real Linux inside Windows</td></tr>
+        <tr><td>Prompt looks like</td><td><code>PS C:\Users\you&gt;</code></td><td><code>you@PC MINGW64 ~ $</code></td><td><code>you@PC:/mnt/c/...$</code></td></tr>
+        <tr><td>C: drive is at</td><td><code>C:\</code></td><td><code>/c/</code></td><td><code>/mnt/c/</code></td></tr>
+        <tr><td>Tutorial commands work?</td><td>No (lookalike aliases, broken flags)</td><td>Yes</td><td>Yes</td></tr>
+        <tr><td>Missing tools</td><td>All the Unix ones</td><td><code>wget</code>, <code>man</code></td><td>None</td></tr>
+      </tbody>
+    </table></div>
+    <div class="box warn"><b class="t">Check the prompt before every session</b><p>If it starts with <code>PS</code> you're in PowerShell, and commands like <code>head</code>, <code>wc</code> and <code>ls -F</code> will fail or misbehave. Open <b>Git Bash</b> from the Start menu instead.</p></div>
+
+    <h3>The OneDrive trap</h3>
+    <p>On many university laptops the Desktop is quietly moved inside OneDrive, e.g. <code>C:\Users\you\OneDrive - University\Desktop</code>. That causes three problems:</p>
+    <ul>
+      <li><code>~/Desktop</code> doesn't exist, so tutorial commands fail with <i>No such file or directory</i>.</li>
+      <li>The path has <b>spaces</b>, so every command needs quotes.</li>
+      <li><b>Cloud sync</b> fights with scripts and Git that change many files quickly (locked files, "-copy" duplicates, corrupted <code>.git</code> folders).</li>
+    </ul>
+    <div class="box tip"><b class="t">Fix</b><p>Keep code and data in a short, local, space-free folder such as <code>~/shell-lesson-data</code> (= <code>C:\Users\you\shell-lesson-data</code>). Back it up with Git and GitHub instead of OneDrive. Run <code>ls ~</code>: if you see <code>OneDrive...</code> but no <code>Desktop</code>, this applies to you.</p></div>
+
+    <h3>Translation table: tutorial → you</h3>
+    <div class="tw"><table>
+      <thead><tr><th>Tutorial says</th><th>On Windows Git Bash</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td><code>cd ~/Desktop/shell-lesson-data</code></td><td><code>cd ~/shell-lesson-data</code></td><td>Desktop is in OneDrive; data lives in home</td></tr>
+        <tr><td><code>/mnt/c/...</code></td><td><code>/c/...</code></td><td>WSL vs Git Bash naming</td></tr>
+        <tr><td><code>wget URL</code></td><td><code>curl -L -O URL</code></td><td>No wget in Git Bash</td></tr>
+        <tr><td><code>man ls</code></td><td><code>ls --help</code></td><td>No man pages</td></tr>
+        <tr><td>Paste with <kbd>Ctrl</kbd>+<kbd>V</kbd></td><td><kbd>Shift</kbd>+<kbd>Insert</kbd> or right-click</td><td>Ctrl+V adds junk like <code>^[[200~</code></td></tr>
+        <tr><td>Double-click a zip</td><td>Right-click → Extract All, or <code>unzip</code></td><td>Double-click makes a nested duplicate folder</td></tr>
+        <tr><td><code>chmod +x</code> changes <code>ls -l</code></td><td>Nothing visibly changes</td><td>Windows drives fake Unix permissions</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>One-time setup checklist</h3>
+    <pre>git --version                                   <span class="c"># Git (and Git Bash) installed?</span>
+git config --global user.name "Your Name"
+git config --global user.email "you@example.com"  <span class="c"># same email as GitHub</span>
+git config --global core.editor "nano -w"       <span class="c"># avoid getting trapped in Vim</span>
+git config --global init.defaultBranch main
+ls -a ~                                         <span class="c"># a stray .git in home? that confuses Git later</span></pre>
+
+    <h3>Getting the lesson data</h3>
+    <pre>cd ~
+curl -L -O https://swcarpentry.github.io/shell-novice/data/shell-lesson-data.zip
+unzip shell-lesson-data.zip
+cd shell-lesson-data
+ls -F                                           <span class="c"># exercise-data/  north-pacific-gyre/</span></pre>
+    <div class="box warn"><b class="t">Moving a folder fails with "Permission denied"?</b><p>Windows won't move a folder a program is using, including a Git Bash window that's <i>inside</i> it. <code>cd ~</code> first, then move it.</p></div>
+
+    <details class="q"><summary>Quick check: your prompt says <code>PS C:\Users\you&gt;</code> and <code>head</code> is "not recognized". What happened?</summary><div class="a">You're in PowerShell (often after an SSH session drops back to your laptop). Open Git Bash, or reconnect. Read the prompt before typing.</div></details>
+    <label class="mark"><input type="checkbox" data-ch="setup"> I've read this chapter</label>
+  </section>
+
+  <!-- 2 -->
+  <section class="ch" id="paths" data-title="Paths and navigation">
+    <div class="ch-head"><span class="ch-num">Chapter 2</span></div>
+    <h2>Where am I? Paths and navigation</h2>
+    <p class="why">Nearly every "No such file or directory" is really "the computer and I disagree about where I am". This chapter fixes that permanently.</p>
+
+    <h3>Core ideas</h3>
+    <ul>
+      <li><b>Directory = folder.</b> Same thing.</li>
+      <li><b>Working directory</b>: the folder you're in right now. Commands act <b>here</b>, and they do <b>not</b> look inside subfolders unless told to.</li>
+      <li><b>Home</b> <code>~</code>: your personal folder (<code>/c/Users/you</code>). Git Bash opens here.</li>
+      <li><b>Absolute path</b>: full address from the top, starts with <code>/</code> or <code>~</code>. Works from anywhere.</li>
+      <li><b>Relative path</b>: directions from where you are. Short, but only right from the right starting point.</li>
+      <li><code>.</code> = this folder, <code>..</code> = the folder above. Real entries in every folder (<code>ls -a</code> shows them), which is why <code>cd ..</code> works without naming the parent.</li>
+    </ul>
+
+    <div class="diagram">shell-lesson-data/
+├── exercise-data/
+│   ├── alkanes/        cubane.pdb ethane.pdb ... (6 molecules)
+│   ├── animal-counts/  animals.csv
+│   ├── creatures/      basilisk.dat minotaur.dat unicorn.dat
+│   └── writing/        haiku.txt LittleWomen.txt
+└── north-pacific-gyre/ NENE01729A.txt ... (17 files) goostats.sh goodiff.sh</div>
+
+    <h3>Commands</h3>
+    <div class="tw"><table>
+      <thead><tr><th>Command</th><th>Does</th><th>Use it when</th></tr></thead>
+      <tbody>
+        <tr><td><code>pwd</code></td><td>Print where you are (absolute)</td><td>Anything "can't be found"</td></tr>
+        <tr><td><code>ls</code></td><td>List what's here</td><td>Constantly</td></tr>
+        <tr><td><code>ls -F</code></td><td>Mark folders <code>/</code>, shortcuts <code>@</code>, runnable <code>*</code></td><td>Telling files from folders</td></tr>
+        <tr><td><code>ls -a</code></td><td>Include hidden entries (<code>.git</code>, <code>.</code>, <code>..</code>)</td><td>Finding config files</td></tr>
+        <tr><td><code>ls -lh</code></td><td>Long listing with readable sizes</td><td>Spotting empty or huge files</td></tr>
+        <tr><td><code>ls -lhrt</code></td><td>…sorted by time, newest at the bottom</td><td>"What did my script just write?"</td></tr>
+        <tr><td><code>cd folder</code> / <code>cd ..</code> / <code>cd ../..</code></td><td>Into / up one / up two</td><td>Moving around</td></tr>
+        <tr><td><code>cd</code> or <code>cd ~</code></td><td>Go home</td><td>Resetting when lost</td></tr>
+        <tr><td><code>cd -</code></td><td>Back to the previous folder</td><td>Bouncing between two places</td></tr>
+        <tr><td><code>clear</code> / <kbd>Ctrl</kbd>+<kbd>L</kbd></td><td>Clear the screen</td><td>Tidying up</td></tr>
+        <tr><td><code>ls --help</code></td><td>Every option</td><td>Figuring it out without asking anyone</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Flags</h3>
+    <p>The <code>-letters</code> after a command change how it behaves, and combine: <code>ls -l -h</code> = <code>ls -lh</code>. <b>Case matters</b> (<code>-F</code> ≠ <code>-f</code>), <b>spaces matter</b> (<code>ls-F</code> = command not found), and lowercase <code>-l</code> looks almost exactly like the number <code>-1</code>.</p>
+
+    <h3>Spaces in names</h3>
+    <p>The shell splits commands on spaces. <code>cd /c/My Stuff/x</code> becomes <code>cd</code> + <code>/c/My</code> + <code>Stuff/x</code>, which fails. Fixes: quotes <code>"/c/My Stuff/x"</code>, a backslash <code>/c/My\ Stuff/x</code>, or Tab completion (adds the backslash for you). Tutorials never need quotes because their folder names have no spaces. That's the real lesson: <b>don't put spaces in names.</b></p>
+
+    <h3>Keyboard survival kit</h3>
+    <div class="tw"><table><tbody>
+      <tr><td><kbd>Tab</kbd></td><td>Complete a name. Twice = list the options. Nothing happens = wrong name or wrong folder</td></tr>
+      <tr><td><kbd>↑</kbd> / <kbd>↓</kbd></td><td>Previous commands (edit and re-run instead of retyping)</td></tr>
+      <tr><td><kbd>Ctrl</kbd>+<kbd>C</kbd></td><td>Cancel whatever is running or half-typed. Escapes a stuck <code>&gt;</code> prompt</td></tr>
+      <tr><td><kbd>Shift</kbd>+<kbd>Insert</kbd></td><td>Paste in Git Bash</td></tr>
+    </tbody></table></div>
+
+    <h3>Practice</h3>
+    <details class="q"><summary>You're in <code>exercise-data/creatures</code>. Get into <code>alkanes</code> with one command. <span class="lvl e">easy</span></summary><div class="a"><code>cd ../alkanes</code>: up to <code>exercise-data</code>, then down into <code>alkanes</code>.</div></details>
+    <details class="q"><summary>From <code>alkanes</code>, the tutorial says <code>cd ../north-pacific-gyre</code> and it fails. Why? <span class="lvl m">medium</span></summary><div class="a">Relative paths depend on where you start. <code>north-pacific-gyre</code> is next to <code>exercise-data</code>, not next to <code>alkanes</code>. From <code>alkanes</code> you need <code>cd ../../north-pacific-gyre</code>.</div></details>
+    <details class="q"><summary>From your home folder, <code>cd Desktop/shell-lesson-data</code> fails. Name two possible reasons. <span class="lvl m">medium</span></summary><div class="a">(1) Your Desktop lives inside OneDrive, so there's no <code>~/Desktop</code>. (2) The data isn't on the Desktop at all. <code>ls</code> and <code>pwd</code> tell you which.</div></details>
+    <details class="q"><summary>You typed <code>ls oldversions\</code> and now see <code>&gt;</code> instead of <code>$</code>. What now? <span class="lvl e">easy</span></summary><div class="a">A trailing <code>\</code> (or an unclosed quote) means "the command continues". Press <kbd>Ctrl</kbd>+<kbd>C</kbd> to get back to <code>$</code>.</div></details>
+    <label class="mark"><input type="checkbox" data-ch="paths"> I've read this chapter</label>
+  </section>
+
+  <!-- 3 -->
+  <section class="ch" id="look" data-title="Looking inside files">
+    <div class="ch-head"><span class="ch-num">Chapter 3</span></div>
+    <h2>Looking inside files</h2>
+    <p class="why">A multi-gigabyte CSV can freeze Excel. These commands peek without loading the whole thing.</p>
+    <div class="tw"><table>
+      <thead><tr><th>Command</th><th>Does</th><th>Real use</th></tr></thead>
+      <tbody>
+        <tr><td><code>cat file</code></td><td>Print the whole file</td><td>Short files</td></tr>
+        <tr><td><code>head -n 5 file</code></td><td>First 5 lines (default 10)</td><td>Check column headers</td></tr>
+        <tr><td><code>tail -n 5 file</code></td><td>Last 5 lines</td><td>Did my run finish? Last log line?</td></tr>
+        <tr><td><code>less file</code></td><td>Scroll; <kbd>q</kbd> quits</td><td>Reading long files</td></tr>
+        <tr><td><code>wc -l file</code></td><td>Count lines</td><td>How many records?</td></tr>
+        <tr><td><code>head -n 2 *.pdb</code></td><td>First 2 lines of every file, each labelled <code>==&gt; name &lt;==</code></td><td>Check a whole batch at once</td></tr>
+        <tr><td><code>zcat file.gz | head</code></td><td>Peek inside a compressed file without unzipping</td><td>Big downloaded datasets</td></tr>
+      </tbody>
+    </table></div>
+    <div class="box tip"><b class="t">Files vs folders: don't trust the name</b><p>A folder can be called <code>number.txt</code> and a file can be called <code>c</code>. <code>ls -l</code> tells the truth: first character <code>d</code> = folder, <code>-</code> = file. <code>cd</code> only works on folders; <code>cat</code>/<code>head</code> only on files. Extensions are just part of the name: copying <code>draft.txt</code> to <code>draft.mp3</code> doesn't make it audio, and renaming <code>data.csv</code> to <code>data.xlsx</code> doesn't make it Excel.</p></div>
+    <details class="q"><summary>From <code>alkanes</code>, <code>head unicorn.dat</code> says "No such file". Fix it without moving. <span class="lvl e">easy</span></summary><div class="a"><code>head ../creatures/unicorn.dat</code>. The file lives in a sibling folder.</div></details>
+    <label class="mark"><input type="checkbox" data-ch="look"> I've read this chapter</label>
+  </section>
+
+  <!-- 4 -->
+  <section class="ch" id="pipes" data-title="Pipes and redirection">
+    <div class="ch-head"><span class="ch-num">Chapter 4</span></div>
+    <h2>Pipes and redirection: snapping tools together</h2>
+    <p class="why">Each command does one small thing. The power comes from connecting them, like LEGO.</p>
+    <div class="tw"><table>
+      <thead><tr><th>Symbol</th><th>Name</th><th>Does</th></tr></thead>
+      <tbody>
+        <tr><td><code>|</code></td><td>Pipe</td><td>Send one command's output into the next command</td></tr>
+        <tr><td><code>&gt;</code></td><td>Redirect</td><td>Save output to a file. <b>Overwrites without asking</b></td></tr>
+        <tr><td><code>&gt;&gt;</code></td><td>Append</td><td>Add output to the end of a file</td></tr>
+      </tbody>
+    </table></div>
+    <pre>wc -l *.pdb                              <span class="c"># count lines in each file (+ a total)</span>
+wc -l *.pdb | sort -n                    <span class="c"># ...ranked smallest first</span>
+wc -l *.pdb | sort -n | head -n 1        <span class="c"># ...just the smallest</span>
+wc -l *.pdb &gt; lengths.txt                <span class="c"># save instead of printing</span>
+grep -n not haiku.txt                    <span class="c"># lines containing "not", with line numbers</span>
+grep -c -i error *.log                   <span class="c"># how many lines mention error, per file</span></pre>
+    <div class="tw"><table>
+      <thead><tr><th><code>grep</code> flag</th><th>Means</th></tr></thead>
+      <tbody>
+        <tr><td><code>-i</code></td><td>Ignore upper/lower case</td></tr>
+        <tr><td><code>-n</code></td><td>Show line numbers</td></tr>
+        <tr><td><code>-c</code></td><td>Count matching lines</td></tr>
+        <tr><td><code>-w</code></td><td>Whole word only</td></tr>
+        <tr><td><code>-v</code></td><td>Lines that do NOT match</td></tr>
+      </tbody>
+    </table></div>
+    <div class="box danger"><b class="t">The silent file-eater</b><p><code>sort data.txt &gt; data.txt</code> leaves you with an <b>empty file</b>: <code>&gt;</code> empties the target before <code>sort</code> reads it. Always redirect into a <b>new</b> name.</p></div>
+    <div class="box tip"><b class="t">Two meanings of <code>&gt;</code> and <code>$</code></b><p>When the <b>shell prints</b> <code>&gt;</code> or <code>$</code>, it's a prompt waiting for you. When <b>you type</b> them, <code>&gt;</code> redirects output and <code>$name</code> means "the value of the variable".</p></div>
+    <details class="q"><summary>Make <code>lengths.txt</code> with the <code>.pdb</code> line counts but without the "total" line. Two ways. <span class="lvl m">medium</span></summary><div class="a">
+      <pre>wc -l *.pdb | head -n 6 &gt; lengths.txt          <span class="c"># in one go (6 files, total is line 7)</span>
+wc -l *.pdb &gt; all.txt; head -n -1 all.txt &gt; lengths.txt   <span class="c"># from a saved file</span></pre>
+      <code>head -n -1</code> = all but the last line (works for any number of files). <code>grep -v total</code> also works.</div></details>
+    <label class="mark"><input type="checkbox" data-ch="pipes"> I've read this chapter</label>
+  </section>
+
+  <!-- 5 -->
+  <section class="ch" id="wild" data-title="Wildcards">
+    <div class="ch-head"><span class="ch-num">Chapter 5</span></div>
+    <h2>Wildcards: many files, one command</h2>
+    <p class="why">Research data comes in batches with patterned names. Consistent naming + wildcards = act on hundreds of files at once.</p>
+    <div class="tw"><table>
+      <thead><tr><th>Pattern</th><th>Matches</th><th>Example match</th></tr></thead>
+      <tbody>
+        <tr><td><code>*</code></td><td>Any characters, including none</td><td><code>*.pdb</code> → every .pdb file</td></tr>
+        <tr><td><code>?</code></td><td>Exactly one character</td><td><code>draft_v?.txt</code> → v1, v2, but not v11</td></tr>
+        <tr><td><code>[cp]</code></td><td>One character from the set</td><td><code>[cp]*.pdb</code> → starts with c or p</td></tr>
+        <tr><td><code>p*.txt</code></td><td>Starts with p AND ends with .txt</td><td>Narrower than <code>p*</code></td></tr>
+        <tr><td><code>*2*</code></td><td>Contains a 2 anywhere</td><td><code>propane2.txt</code></td></tr>
+        <tr><td><code>*/*.txt</code></td><td>.txt files one folder down</td><td>Wildcards don't search deeper on their own</td></tr>
+      </tbody>
+    </table></div>
+    <p>The <b>shell</b> expands the pattern into a list of names <i>before</i> the command runs: <code>wc -l p*.pdb</code> becomes <code>wc -l pentane.pdb propane.pdb</code>. That's why <code>echo pattern</code> or <code>ls pattern</code> previews exactly what will be affected.</p>
+    <div class="box danger"><b class="t">Safe habit for anything destructive</b><p>1. <code>ls pattern</code> &nbsp; 2. read the list &nbsp; 3. swap <code>ls</code> for <code>rm</code>/<code>mv</code>/<code>cp</code> with the <b>exact same</b> pattern.</p></div>
+    <details class="q"><summary>From <code>exercise-data</code>, <code>ls p*.pdb</code> finds nothing, even though the files exist. Why? <span class="lvl e">easy</span></summary><div class="a">They're one level down in <code>alkanes</code>. Wildcards only match in the current folder. Use <code>ls alkanes/p*.pdb</code>.</div></details>
+    <details class="q"><summary>Files: <code>draft_v1.txt draft_v2.txt draft_v10.txt draft_final.txt</code>. What do <code>draft_v??.txt</code> and <code>*v1*</code> match? <span class="lvl m">medium</span></summary><div class="a"><code>draft_v??.txt</code> → <code>draft_v10.txt</code>. <code>*v1*</code> → <code>draft_v1.txt</code> and <code>draft_v10.txt</code>.</div></details>
+    <label class="mark"><input type="checkbox" data-ch="wild"> I've read this chapter</label>
+  </section>
+
+  <!-- 6 -->
+  <section class="ch" id="files" data-title="Create, move, delete">
+    <div class="ch-head"><span class="ch-num">Chapter 6</span></div>
+    <h2>Creating, copying, moving, deleting</h2>
+    <p class="why">The things you normally do in File Explorer, but scriptable, repeatable, and available on servers with no Explorer at all.</p>
+    <div class="tw"><table>
+      <thead><tr><th>Command</th><th>Does</th><th>Watch out</th></tr></thead>
+      <tbody>
+        <tr><td><code>mkdir name</code></td><td>New empty folder</td><td><code>mkdir -p a/b/c</code> makes nested folders</td></tr>
+        <tr><td><code>touch name</code></td><td>New empty file</td><td></td></tr>
+        <tr><td><code>nano file</code></td><td>Edit text in the terminal</td><td><kbd>Ctrl</kbd>+<kbd>O</kbd>, <kbd>Enter</kbd> save · <kbd>Ctrl</kbd>+<kbd>X</kbd> exit · no mouse</td></tr>
+        <tr><td><code>echo text &gt; file</code></td><td>One-line file</td><td>Great inside scripts</td></tr>
+        <tr><td><code>cp a b</code></td><td>Copy; original stays</td><td><code>-r</code> for folders</td></tr>
+        <tr><td><code>cp a b c folder/</code></td><td>Copy several</td><td>Last item must be an existing folder</td></tr>
+        <tr><td><code>mv a b</code></td><td>Move or <b>rename</b>; original gone</td><td><code>mv file ../</code> = up one level</td></tr>
+        <tr><td><code>rm file</code> / <code>rm -r folder</code></td><td>Delete, <b>permanently</b></td><td>No Recycle Bin. <code>ls</code> first</td></tr>
+        <tr><td><code>rmdir folder</code></td><td>Delete an <b>empty</b> folder only</td><td>The safer choice</td></tr>
+        <tr><td><code>.</code></td><td>"Here"</td><td><code>cp old/draft.txt .</code></td></tr>
+      </tbody>
+    </table></div>
+    <h3>Naming rules (and the reason for each)</h3>
+    <div class="tw"><table><tbody>
+      <tr><td>No spaces; use <code>_</code> or <code>-</code></td><td><code>mkdir Thesis version1</code> creates <b>two</b> folders</td></tr>
+      <tr><td>Don't start with <code>-</code></td><td>It would be read as a flag</td></tr>
+      <tr><td>Letters, numbers, <code>. _ -</code> only</td><td><code>* ? &gt; | &amp; $ ' "</code> all mean something to the shell</td></tr>
+      <tr><td>Be consistent (<code>sample_001.csv</code>…)</td><td>Makes wildcards and loops trivial</td></tr>
+    </tbody></table></div>
+    <div class="box warn"><b class="t">Windows ignores case</b><p><code>Thesis</code> and <code>thesis</code> are the same folder on Windows but different on Mac/Linux servers. And <code>cp</code>, <code>mv</code> and <code>&gt;</code> overwrite same-named files silently; add <code>-i</code> to <code>cp</code>/<code>mv</code>/<code>rm</code> to be asked first.</p></div>
+    <details class="q"><summary>Saved a nano file, but <code>cat</code> shows nothing. What happened? <span class="lvl e">easy</span></summary><div class="a">You saved before typing (or typed outside the window). Reopen with <code>nano</code>, type, <kbd>Ctrl</kbd>+<kbd>O</kbd>, <kbd>Enter</kbd>, <kbd>Ctrl</kbd>+<kbd>X</kbd>, then <code>cat</code> to confirm.</div></details>
+    <details class="q"><summary>Unzipping gave you <code>shell-lesson-data/shell-lesson-data/...</code>. How do you check the copies match before deleting one? <span class="lvl h">harder</span></summary><div class="a"><code>diff -rq outer/ outer/inner/</code> (excluding the inner folder itself) reports differences. No output = identical. Then <code>rm -r</code> the duplicate, after an <code>ls</code>.</div></details>
+    <label class="mark"><input type="checkbox" data-ch="files"> I've read this chapter</label>
+  </section>
+
+  <!-- 7 -->
+  <section class="ch" id="data" data-title="Counting, sorting, columns">
+    <div class="ch-head"><span class="ch-num">Chapter 7</span></div>
+    <h2>Counting, sorting and pulling out columns</h2>
+    <p class="why">Instant answers about a dataset (how many rows, which categories, how often) before you even open R.</p>
+    <div class="tw"><table>
+      <thead><tr><th>Command</th><th>Does</th></tr></thead>
+      <tbody>
+        <tr><td><code>wc file</code> / <code>wc -l</code></td><td>Lines, words, characters / lines only</td></tr>
+        <tr><td><code>sort</code> / <code>sort -n</code></td><td>Sort as text / as numbers. Without <code>-n</code>, <code>107</code> sorts before <code>12</code></td></tr>
+        <tr><td><code>cut -d , -f 2 file.csv</code></td><td>Keep column 2 (<code>-d</code> = delimiter, <code>-f</code> = field). <code>-f 2,3</code> or <code>-f 1-2</code> for several</td></tr>
+        <tr><td><code>cut -f 2 file.tsv</code></td><td>Tab-separated: leave out <code>-d</code>, tab is the default (or <code>-d $'\t'</code>)</td></tr>
+        <tr><td><code>uniq</code> / <code>uniq -c</code></td><td>Collapse <b>neighbouring</b> duplicates / and count them</td></tr>
+        <tr><td><code>sort -u</code></td><td>Sort + unique in one step (can't count)</td></tr>
+      </tbody>
+    </table></div>
+    <pre>cut -d , -f 2 animals.csv | sort | uniq -c    <span class="c"># instant frequency table</span>
+      1 bear
+      2 deer
+      1 fox
+      3 rabbit
+      1 raccoon</pre>
+    <div class="box tip"><b class="t">Why <code>uniq</code> needs <code>sort</code></b><p><code>uniq</code> only compares each line with the one right before it. Unsorted <code>deer, rabbit, raccoon, rabbit, deer</code> has no identical neighbours, so nothing is removed. <code>sort</code> groups them first.</p></div>
+    <div class="box warn"><b class="t">Gotchas</b>
+      <p><code>cut -d \t</code> is <b>not</b> a tab: the shell turns <code>\t</code> into the letter <code>t</code>, nothing splits, and the whole line prints.</p>
+      <p>Asking for a column that doesn't exist gives <b>no error</b>, just less output. A typo in a column number won't warn you.</p>
+      <p><code>cut</code> splits on <b>every</b> comma, including commas inside quoted text (<code>"Moscow, ID"</code>). For messy real CSVs, use R's <code>read.csv</code>.</p>
+      <p><code>uniq -c</code> catches messy categories: <code>Rabbit</code> and <code>rabbit</code> appear as separate lines.</p>
+    </div>
+    <details class="q"><summary>Pull the year out of the date <code>2012-11-05</code> with one command. <span class="lvl m">medium</span></summary><div class="a"><code>echo 2012-11-05 | cut -d - -f 1</code> → <code>2012</code>. Any single character can be a delimiter.</div></details>
+    <label class="mark"><input type="checkbox" data-ch="data"> I've read this chapter</label>
+  </section>
+
+  <!-- 8 -->
+  <section class="ch" id="perms" data-title="Permissions">
+    <div class="ch-head"><span class="ch-num">Chapter 8</span></div>
+    <h2>File permissions</h2>
+    <p class="why">Irrelevant on your own laptop, essential on shared servers: who can read your data, who can change it, and whether a script may run.</p>
+    <p>Every file has an <b>owner</b>, a <b>group</b> (a named team, e.g. a lab; check yours with <code>groups</code>), and permissions for owner / group / everyone else.</p>
+    <div class="diagram">-rwxr-x---
+│└┬┘└┬┘└┬┘
+│ │  │  └─ others: nothing
+│ │  └──── group:  read + run
+│ └─────── user:   read + write + run
+└───────── type:   - file, d directory</div>
+    <div class="tw"><table>
+      <thead><tr><th>Letter</th><th>On a file</th><th>On a folder</th></tr></thead>
+      <tbody>
+        <tr><td><code>r</code></td><td>Read contents</td><td>List what's inside</td></tr>
+        <tr><td><code>w</code></td><td>Change / delete</td><td>Add or remove files</td></tr>
+        <tr><td><code>x</code></td><td>Run as a program</td><td><code>cd</code> into it</td></tr>
+      </tbody>
+    </table></div>
+    <h3><code>chmod</code></h3>
+    <div class="tw"><table>
+      <thead><tr><th>Command</th><th>Means</th></tr></thead>
+      <tbody>
+        <tr><td><code>chmod +x script.sh</code></td><td>Make runnable. Fixes "Permission denied" when running your own script</td></tr>
+        <tr><td><code>chmod g+r file</code> / <code>chmod o-r file</code></td><td>Group can read / others can't</td></tr>
+        <tr><td><code>chmod g-w rawdata/*</code></td><td>Protect raw data from accidental edits by the group</td></tr>
+        <tr><td><code>755</code> = <code>rwxr-xr-x</code></td><td>Scripts others may run, not edit</td></tr>
+        <tr><td><code>644</code> = <code>rw-r--r--</code></td><td>Normal files</td></tr>
+        <tr><td><code>700</code> / <code>770</code></td><td>Private / shared with group only</td></tr>
+      </tbody>
+    </table></div>
+    <div class="box danger"><b class="t">Never <code>chmod 777</code></b><p>It's a common "quick fix" online and from AI for permission errors. On a shared machine it means anyone can change or delete your files. The real fix is usually <code>u+x</code> or a group permission.</p></div>
+    <h3>How it looks in different places</h3>
+    <div class="tw"><table>
+      <thead><tr><th>Where</th><th>What to expect</th></tr></thead>
+      <tbody>
+        <tr><td>Windows, Git Bash</td><td>Permissions are <b>guessed</b>: files starting with <code>#!</code> show <code>x</code>; <code>chmod</code> visibly does nothing. If a script won't run: <code>bash script.sh</code></td></tr>
+        <tr><td>Windows, WSL on <code>/mnt/c</code></td><td>Everything shows <code>rwxrwxrwx</code> (also faked)</td></tr>
+        <tr><td>Your HPC home folder</td><td>Real and enforced; usually private to you</td></tr>
+        <tr><td>Your lab's project folder</td><td>Owned by a lab <b>group</b>, e.g. <code>drwxrws---</code>. The <code>s</code> (setgid) makes new files belong to the group automatically, so labmates can always open them</td></tr>
+        <tr><td>Scratch space</td><td>Private, fast, often <b>auto-deleted</b>. Never keep the only copy there</td></tr>
+      </tbody>
+    </table></div>
+    <details class="q"><summary>What does <code>-rwxr-x---</code> let each person do? <span class="lvl e">easy</span></summary><div class="a">Owner: read, write, run. Group: read and run. Others: nothing (<code>750</code>), a typical "shared with my lab only" script.</div></details>
+    <label class="mark"><input type="checkbox" data-ch="perms"> I've read this chapter</label>
+  </section>
+
+  <!-- 9 -->
+  <section class="ch" id="loops" data-title="Loops">
+    <div class="ch-head"><span class="ch-num">Chapter 9</span></div>
+    <h2>Loops: do it once, apply it everywhere</h2>
+    <p class="why">The moment the shell starts saving you real time: one command, run once per file, the same way every time.</p>
+    <pre>for filename in *.dat
+do
+    echo $filename
+    head -n 2 $filename | tail -n 1
+done</pre>
+    <div class="tw"><table><tbody>
+      <tr><td><code>for filename in ...</code></td><td>Go through the list; each time, store the current item in a <b>variable</b> called <code>filename</code></td></tr>
+      <tr><td><code>do</code> … <code>done</code></td><td>The commands to repeat</td></tr>
+      <tr><td><code>$filename</code></td><td>The <b>value</b> stored in the variable</td></tr>
+      <tr><td>The list</td><td>Typed out, a wildcard (<code>*.dat</code>), or a sequence (<code>{1..10}</code>, <code>{01..12}</code>, <code>{10..1}</code>)</td></tr>
+    </tbody></table></div>
+    <p>One-line version: <code>for f in *.dat; do echo $f; done</code>. Semicolons go after the list, between commands, and before <code>done</code>. Tip: type the multi-line version once, press <kbd>↑</kbd>, and bash shows it as one line with the semicolons in place.</p>
+    <div class="box warn"><b class="t">The classic mistake</b><p><code>for f in *.pdb; do ls *.pdb; done</code> lists all six files <b>six times</b>: it never uses <code>$f</code>. If your loop body doesn't mention the variable, it's probably wrong.</p></div>
+    <div class="box tip"><b class="t">Dry-run anything dangerous</b><p>Put <code>echo</code> in front: <code>for f in *.dat; do echo cp $f backup-$f; done</code> prints the commands instead of running them. Looks right? Remove <code>echo</code>.</p></div>
+    <h3>Patterns you'll reuse</h3>
+    <pre>for f in *.dat; do cp $f original-$f; done                 <span class="c"># backups (cp *.dat original-*.dat can't do this)</span>
+for f in *.pdb; do cat $f &gt;&gt; all.pdb; done                 <span class="c"># combine: &gt;&gt; not &gt; (or only the last survives)</span>
+for f in "cool basilisk.dat" "pink unicorn.dat"; do head "$f"; done   <span class="c"># names with spaces need quotes</span>
+for s in cubane ethane methane; do                        <span class="c"># nested: 3 x 4 = 12 folders</span>
+    for t in 25 30 37 40; do mkdir $s-$t; done
+done</pre>
+    <details class="q"><summary>Why does <code>cp *.dat original-*.dat</code> fail with "not a directory"? <span class="lvl m">medium</span></summary><div class="a">With several source files, <code>cp</code> needs the last item to be a folder. Building a new name per file needs a loop: <code>for f in *.dat; do cp $f original-$f; done</code>.</div></details>
+    <details class="q"><summary>Print 0 to 9 the lazy way. <span class="lvl e">easy</span></summary><div class="a"><code>for n in {0..9}; do echo $n; done</code>. <code>{0..9}</code> is brace expansion.</div></details>
+    <label class="mark"><input type="checkbox" data-ch="loops"> I've read this chapter</label>
+  </section>
+
+  <!-- 10 -->
+  <section class="ch" id="scripts" data-title="Shell scripts">
+    <div class="ch-head"><span class="ch-num">Chapter 10</span></div>
+    <h2>Shell scripts</h2>
+    <p class="why">A script is just the commands you'd type, saved in a file, so anyone (including future you) can re-run them exactly.</p>
+    <pre>#!/bin/bash
+# select lines from the middle of a file
+# usage: bash middle.sh filename end_line num_lines
+head -n "$2" "$1" | tail -n "$3"</pre>
+    <div class="tw"><table><tbody>
+      <tr><td><code>#!/bin/bash</code></td><td><b>Shebang</b>: which program runs the file</td></tr>
+      <tr><td><code># ...</code></td><td>Comments for humans: what it does and how to call it</td></tr>
+      <tr><td><code>$1 $2 $3</code></td><td>The 1st, 2nd, 3rd <b>arguments</b> typed after the script name</td></tr>
+      <tr><td><code>"$@"</code></td><td><b>All</b> the arguments, however many</td></tr>
+      <tr><td><code>$#</code></td><td>How many arguments there were</td></tr>
+      <tr><td><code>"$1"</code> in quotes</td><td>Keeps file names with spaces in one piece</td></tr>
+      <tr><td><code>name="value"</code></td><td>Create a variable (no spaces around <code>=</code>)</td></tr>
+      <tr><td><code>$(date)</code></td><td>Insert a command's output, e.g. a timestamp in a log</td></tr>
+    </tbody></table></div>
+    <h3>Three ways to run a script</h3>
+    <div class="tw"><table>
+      <thead><tr><th>You type</th><th>Result</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td><code>myscript.sh</code></td><td>command not found</td><td>The shell only searches system folders (the <b>PATH</b>), not the current one. A safety feature</td></tr>
+        <tr><td><code>./myscript.sh</code></td><td>Runs</td><td><code>./</code> = "the one right here". Needs <code>x</code> permission</td></tr>
+        <tr><td><code>bash myscript.sh</code></td><td>Runs</td><td>Hands it to bash directly; doesn't need <code>x</code></td></tr>
+      </tbody>
+    </table></div>
+    <div class="box warn"><b class="t">Match the runner to the language</b><p><code>bash x.sh</code>, <code>python x.py</code>, <code>Rscript x.R</code>. <code>bash</code> can't read Python.</p></div>
+    <div class="box ai"><b class="t">Read before you run</b><p><code>less script.sh</code> takes ten seconds and tells you exactly what a script (from a colleague, the internet, or an AI) is about to do. Good scripts check their inputs and print a usage message when called wrong, like <code>goodiff.sh</code> does with no arguments.</p></div>
+    <h3>Capstone: a setup script that logs itself</h3>
+    <pre>#!/bin/bash
+# build experiment folders and record what was created
+log_file="setup_log.txt"
+echo "Setup started: $(date)" &gt; $log_file
+for species in cubane ethane methane; do
+    mkdir -p $species
+    echo "Created $species" &gt;&gt; $log_file
+    for temperature in 25 30 37 40; do
+        mkdir -p $species/$temperature
+        touch $species/$temperature/experiment.sh
+        echo "  - $species/$temperature/" &gt;&gt; $log_file
+    done
+done
+echo "Setup completed: $(date)" &gt;&gt; $log_file</pre>
+    <p>Notice: <code>&gt;</code> once to start a fresh log, <code>&gt;&gt;</code> after that; <code>mkdir -p</code> so re-running doesn't fail with "File exists".</p>
+    <details class="q"><summary>Write <code>sorted.sh</code> that ranks <i>any</i> files you give it by length. <span class="lvl m">medium</span></summary><div class="a"><pre>#!/bin/bash
+# usage: bash sorted.sh file1 [file2 ...]
+wc -l "$@" | sort -n</pre>Then <code>bash sorted.sh *.pdb ../creatures/*.dat</code>.</div></details>
+    <details class="q"><summary>Write <code>species.sh</code>: for each CSV given, print its unique species (column 2). <span class="lvl h">harder</span></summary><div class="a"><pre>#!/bin/bash
+for file in "$@"; do
+    echo "Unique species in $file:"
+    cut -d , -f 2 "$file" | sort | uniq
+done</pre>Inside a file you don't type the <code>&gt;</code> prompts; those only appear when typing a loop interactively.</div></details>
+    <label class="mark"><input type="checkbox" data-ch="scripts"> I've read this chapter</label>
+  </section>
+
+  <!-- 11 -->
+  <section class="ch" id="remote" data-title="Servers, SSH, SLURM">
+    <div class="ch-head"><span class="ch-num">Chapter 11</span></div>
+    <h2>Remote servers: SSH, file transfer and SLURM</h2>
+    <p class="why">This is where everything earlier pays off. A cluster or GPU server is just a shell on a much bigger computer.</p>
+    <h3>Logging in</h3>
+    <pre>ssh username@server.university.edu                         <span class="c"># prompt changes to username@server</span>
+ssh -o ServerAliveInterval=60 username@server.university.edu   <span class="c"># keep-alive: idle connections don't drop</span>
+exit                                                       <span class="c"># back to your laptop</span></pre>
+    <div class="box warn"><b class="t">Always know which computer you're typing into</b><p><code>username@server</code> = the server. <code>MINGW64</code> = your laptop (Git Bash). <code>PS C:\</code> = your laptop (PowerShell). If the connection resets, you silently land back on the laptop. Start <code>ssh</code> from Git Bash so a drop leaves you in a bash shell.</p></div>
+    <p>The login banner is worth reading: core count, memory, current load, the support contact, and maintenance windows (e.g. a weekly reboot that will kill long jobs left running).</p>
+    <h3>Moving files</h3>
+    <pre>scp results.csv username@server:~/project/        <span class="c"># upload (last item = destination)</span>
+scp username@server:~/project/results.csv .       <span class="c"># download to here ( . = current folder)</span>
+scp -r username@server:~/project .                <span class="c"># a whole folder</span></pre>
+    <p>FileZilla and WinSCP do the same thing with drag-and-drop (SFTP runs over SSH). Web portals like Open OnDemand give you files, a terminal and RStudio/Jupyter in the browser; if one won't load, try the campus VPN, and if login is refused, ask research computing support to enable it for your account.</p>
+    <h3>Looking around a shared machine</h3>
+    <div class="tw"><table><tbody>
+      <tr><td><code>who</code> / <code>w</code> / <code>users</code></td><td>Who is logged in (<code>w</code> adds what they're running and the load)</td></tr>
+      <tr><td><code>top</code> / <code>htop</code></td><td>Live CPU/memory per process and user (<kbd>q</kbd> quits)</td></tr>
+      <tr><td><code>nvidia-smi</code></td><td>GPU memory, load and processes. Check before starting a big GPU job</td></tr>
+      <tr><td><code>df -h</code></td><td>How full the disks are</td></tr>
+      <tr><td><code>last | head</code></td><td>Recent logins</td></tr>
+    </tbody></table></div>
+    <h3>Logging in without a password every time</h3>
+    <pre>ssh-keygen -t ed25519                      <span class="c"># make a key pair on your laptop (Enter for defaults)</span>
+ssh-copy-id username@server.university.edu  <span class="c"># put the public half on the server</span></pre>
+    <p>Two-factor (e.g. Duo) may still be required by policy. Ask your research computing team; don't try to get around it. A <code>~/.ssh/config</code> entry lets you type <code>ssh myserver</code> instead of the full address.</p>
+    <h3>SLURM: the queue</h3>
+    <p>Clusters are shared, so heavy work is <b>submitted as a job</b> and run when resources free up, like a restaurant waiting list.</p>
+    <div class="tw"><table><tbody>
+      <tr><td>Node / partition</td><td>One computer / a group of nodes for a purpose (<code>gpu</code>, <code>short</code>)</td></tr>
+      <tr><td>Login vs compute node</td><td>Login: edit and submit only. Compute: where jobs run</td></tr>
+      <tr><td><code>sinfo</code></td><td>Partitions and node status</td></tr>
+      <tr><td><code>squeue</code> / <code>squeue -u me</code></td><td>The queue / your jobs. <code>R</code> running, <code>PD</code> pending</td></tr>
+      <tr><td>Waiting reasons</td><td><code>(Resources)</code> not enough free; <code>(Priority)</code> others first; <code>(Dependency)</code> waiting for another job (pipelines); <code>(QOS…Limit)</code> hit your limit</td></tr>
+      <tr><td><code>sbatch job.sh</code> / <code>scancel ID</code></td><td>Submit / cancel</td></tr>
+      <tr><td><code>srun --pty bash</code></td><td>Interactive shell on a compute node for testing</td></tr>
+    </tbody></table></div>
+    <pre>#!/bin/bash
+#SBATCH --job-name=myanalysis
+#SBATCH --partition=gpu
+#SBATCH --cpus-per-task=4
+#SBATCH --mem=16G
+#SBATCH --gres=gpu:1
+#SBATCH --time=02:00:00
+#SBATCH --output=log_%j.txt
+python train_model.py</pre>
+    <p>A job script is a Chapter 10 script with resource requests on top.</p>
+    <label class="mark"><input type="checkbox" data-ch="remote"> I've read this chapter</label>
+  </section>
+
+  <!-- 12 -->
+  <section class="ch" id="git" data-title="Git basics">
+    <div class="ch-head"><span class="ch-num">Chapter 12</span></div>
+    <h2>Git: your project's memory</h2>
+    <p class="why">Undo mistakes, see exactly what changed and when, prove how a result was produced, and keep laptop and server in sync.</p>
+    <div class="diagram">Working directory  ──git add──▶  Staging area  ──git commit──▶  Repository (history)
+   (you edit)                     ("in the box")                 ("box sealed + labelled")</div>
+    <h3>Start a repository</h3>
+    <pre>cd ~/my-project          <span class="c"># NOT inside OneDrive, NOT inside another repo</span>
+git init
+git branch -M main       <span class="c"># older installs default to "master"; GitHub uses "main"</span>
+ls -a                    <span class="c"># .git/ holds the whole history. Never edit or delete it</span></pre>
+    <p>Inside a repo, Git Bash shows the <b>branch</b> in the prompt, e.g. <code>(main)</code>. Handy sign you're in one.</p>
+    <h3>The everyday cycle</h3>
+    <pre>git status                       <span class="c"># what changed? (run it constantly, like pwd)</span>
+git add -A                       <span class="c"># stage everything (or: git add file.txt)</span>
+git status                       <span class="c"># confirm what's staged</span>
+git commit -m "what and why"     <span class="c"># save the snapshot</span>
+git log --oneline                <span class="c"># history</span></pre>
+    <div class="diagram">Untracked ──add──▶ Staged ──commit──▶ Tracked ──edit──▶ Modified ──add+commit──▶ saved again</div>
+    <div class="tw"><table>
+      <thead><tr><th>Reading the output</th><th>Means</th></tr></thead>
+      <tbody>
+        <tr><td><code>[main (root-commit) f566a1b]</code></td><td>Branch, very first commit, commit ID</td></tr>
+        <tr><td><code>create mode 100644</code></td><td>Permissions <code>rw-r--r--</code> (Chapter 8)</td></tr>
+        <tr><td><code>LF will be replaced by CRLF</code></td><td>Windows line-ending conversion. Normal; ignore</td></tr>
+        <tr><td><code>filter.lfs...</code> in config</td><td>Git LFS for large files, often added by GitHub Desktop. Harmless</td></tr>
+      </tbody>
+    </table></div>
+    <h3>.gitignore: decide what Git should never see</h3>
+    <pre>*.gz
+*.fasta
+results/
+.Rhistory</pre>
+    <p>Patterns use shell wildcards. The <code>.gitignore</code> itself <b>is</b> committed, so collaborators share the rules.</p>
+    <div class="box danger"><b class="t">A real near-miss</b><p>A 90 MB protein database (<code>uniprot_sprot.fasta.gz</code>) was downloaded into a repo and <code>git add -A</code> ran before any <code>.gitignore</code> existed, so it got staged. Caught before committing:</p>
+<pre>nano .gitignore                         <span class="c"># add *.gz and *.fasta</span>
+git rm --cached path/to/uniprot_sprot.fasta.gz   <span class="c"># unstage, keep the file on disk</span>
+git add .gitignore
+git check-ignore -v path/to/uniprot_sprot.fasta.gz   <span class="c"># .gitignore:1:*.gz → ignored</span>
+git commit -m "first commit, ignore large sequence files"</pre>
+      <p><b>Rule:</b> create <code>.gitignore</code> before the first <code>git add</code>. GitHub warns at 50 MB and rejects files over 100 MB. Track code, not big data.</p></div>
+    <h3>Best practices</h3>
+    <ul>
+      <li><code>git status</code> before and after everything; read it before <code>git add -A</code>.</li>
+      <li>Small, frequent commits with messages that say what and why ("fix date parsing", not "update").</li>
+      <li><code>git pull</code> before you start; <code>git push</code> when you stop. Commits live only on your laptop until pushed.</li>
+      <li>Never commit passwords or keys. A pushed secret is a leaked secret: change it.</li>
+      <li>One repo per project; no repos inside repos; no repos inside OneDrive/Dropbox.</li>
+    </ul>
+    <details class="q"><summary>"Please tell me who you are" on the first commit. Not logged in? <span class="lvl e">easy</span></summary><div class="a">No: Git needs a name and email to label commits. <code>git config --global user.name "..."</code> and <code>user.email "..."</code>. Logging in to GitHub only happens at <code>git push</code>.</div></details>
+    <details class="q"><summary>"key does not contain a section"? <span class="lvl e">easy</span></summary><div class="a">A typo in the setting name. It must be <code>user.name</code> / <code>user.email</code> (with the dot), with the value in quotes.</div></details>
+    <label class="mark"><input type="checkbox" data-ch="git"> I've read this chapter</label>
+  </section>
+
+  <!-- 13 -->
+  <section class="ch" id="undo" data-title="History and undo">
+    <div class="ch-head"><span class="ch-num">Chapter 13</span></div>
+    <h2>Time travel: history, differences and undo</h2>
+    <p class="why">"Five versions ago it worked better." Find it, look at it, compare it, bring it back, without losing anything.</p>
+    <h3>Find and compare</h3>
+    <div class="tw"><table>
+      <thead><tr><th>Question</th><th>Command</th></tr></thead>
+      <tbody>
+        <tr><td>Which versions exist?</td><td><code>git log --oneline file.sh</code></td></tr>
+        <tr><td>…with the actual line changes</td><td><code>git log -p file.sh</code></td></tr>
+        <tr><td>What did version X look like? (changes nothing)</td><td><code>git show X:file.sh</code></td></tr>
+        <tr><td>What have I changed since my last commit?</td><td><code>git diff</code></td></tr>
+        <tr><td>Version X vs now / X vs Y</td><td><code>git diff X file.sh</code> / <code>git diff X Y file.sh</code></td></tr>
+      </tbody>
+    </table></div>
+    <p><code>HEAD</code> = latest commit, <code>HEAD~1</code> = the one before, <code>HEAD~5</code> = five back, or use an ID from <code>git log --oneline</code>. In diffs, red <code>-</code> lines were removed and green <code>+</code> lines added. <b>Good commit messages are what make old versions findable.</b></p>
+    <h3>Every common "go back" case</h3>
+    <div class="tw"><table>
+      <thead><tr><th>Situation</th><th>Command</th><th>Note</th></tr></thead>
+      <tbody>
+        <tr><td>Undo my uncommitted edits to a file</td><td><code>git restore file</code></td><td>Back to last commit; edits lost</td></tr>
+        <tr><td>One file back to an older version</td><td><code>git restore --source HEAD~1 file</code></td><td>Then add + commit. History kept</td></tr>
+        <tr><td>Browse the whole project in the past</td><td><code>git checkout X</code></td><td>"Detached HEAD" = visiting. Return: <code>git switch main</code></td></tr>
+        <tr><td>Undo a commit that's already pushed</td><td><code>git revert X</code></td><td>Adds an "opposite" commit. Safe</td></tr>
+        <tr><td>Throw away everything after X</td><td><code>git reset --hard X</code></td><td>⚠ Local, unpushed only</td></tr>
+        <tr><td>Unstage a file added by mistake</td><td><code>git restore --staged file</code></td><td>Edits kept</td></tr>
+        <tr><td>Deleted a file by accident</td><td><code>git restore file</code></td><td></td></tr>
+        <tr><td>Put changes aside for a moment</td><td><code>git stash</code> / <code>git stash pop</code></td><td></td></tr>
+        <tr><td>Fix the last commit message</td><td><code>git commit --amend -m "..."</code></td><td>Not if pushed</td></tr>
+        <tr><td>Forgot a file in the last commit</td><td><code>git add f</code> + <code>git commit --amend --no-edit</code></td><td>Not if pushed</td></tr>
+        <tr><td>Undo last commit, keep the changes</td><td><code>git reset --soft HEAD~1</code></td><td>Not if pushed</td></tr>
+        <tr><td>"I lost commits!"</td><td><code>git reflog</code></td><td>Everywhere HEAD has been</td></tr>
+      </tbody>
+    </table></div>
+    <div class="box tip"><b class="t">The filename says which file; <code>--source</code> says which version</b><p><code>git restore notes.txt</code> → latest commit. <code>git restore --source HEAD~1 notes.txt</code> → one further back. Mind the spelling: <code>--source</code> with no space after the dashes.</p></div>
+    <div class="box danger"><b class="t">The golden rule</b><p>Already pushed? Use <code>git revert</code> or restore-and-commit. Never <code>reset --hard</code> or <code>--amend</code> history other people already have.</p></div>
+    <details class="q"><summary>Try it: build a two-version file and travel between them. <span class="lvl m">medium</span></summary><div class="a"><pre>mkdir ~/restore-practice &amp;&amp; cd ~/restore-practice &amp;&amp; git init
+echo "version A" &gt; notes.txt; git add notes.txt; git commit -m "A"
+echo "version B" &gt; notes.txt; git add notes.txt; git commit -m "B"
+echo "messy edit" &gt; notes.txt
+git restore notes.txt;                     cat notes.txt   <span class="c"># version B</span>
+git restore --source HEAD~1 notes.txt;     cat notes.txt   <span class="c"># version A</span>
+git show HEAD~1:notes.txt                                  <span class="c"># look without changing</span>
+cd ~ &amp;&amp; rm -rf restore-practice                            <span class="c"># clean up</span></pre></div></details>
+    <label class="mark"><input type="checkbox" data-ch="undo"> I've read this chapter</label>
+  </section>
+
+  <!-- 14 -->
+  <section class="ch" id="github" data-title="GitHub and Pages">
+    <div class="ch-head"><span class="ch-num">Chapter 14</span></div>
+    <h2>GitHub: backup, sharing and a free website</h2>
+    <p class="why">Local Git works offline and only you see it. A <b>remote</b> on GitHub gives you backup, collaboration, and syncing between laptop and server.</p>
+    <h3>Push an existing local repo</h3>
+    <ol>
+      <li>On github.com: <b>+</b> → New repository → name → leave README, .gitignore and license <b>unticked</b> → Create → copy the HTTPS URL.</li>
+      <li>In the repo folder:</li>
+    </ol>
+    <pre>git status                         <span class="c"># clean? commit anything staged first: push sends commits only</span>
+git remote add origin https://github.com/USER/REPO.git
+git remote -v                      <span class="c"># check ("origin" is just a nickname)</span>
+git push -u origin main            <span class="c"># browser sign-in pops up the first time</span></pre>
+    <p>After that, plain <code>git push</code>. The other route for new projects: create on GitHub first, then <code>git clone URL</code> and work inside the clone. Clone the same repo on your laptop <i>and</i> a server: write locally, push, pull on the server, run there.</p>
+    <h3>Publish a website with GitHub Pages</h3>
+    <ol>
+      <li>Add an <code>index.html</code> (home page) and any other pages (<code>gapminder.html</code> → <code>/gapminder.html</code>).</li>
+      <li><code>git add</code> → <code>git commit</code> → <code>git push</code>.</li>
+      <li>Repo <b>Settings → Pages</b> → Deploy from a branch → <code>main</code> / <code>(root)</code> → Save.</li>
+      <li>Wait 1–2 minutes (Actions tab shows the build), open <code>https://USER.github.io/REPO/</code>, press <kbd>Ctrl</kbd>+<kbd>F5</kbd>.</li>
+    </ol>
+    <div class="box warn"><b class="t">Getting a 404?</b><p>It almost always means the file isn't on GitHub yet. Check <code>git status</code> (<code>??</code> untracked or <code>M</code> modified means not committed) and <code>git log --oneline</code>, then look at the file list on GitHub. Files reach the website only after <b>add → commit → push</b>. Free accounts need the repo <b>public</b> for Pages.</p></div>
+    <p>This guide and the <a href="gapminder.html">Gapminder Explorer</a> are published exactly this way. The explorer was this workshop's AI-assisted exercise (the class used the Goose agent): describe the page you want, <b>review the code</b>, then commit and push it yourself.</p>
+    <h3>Git error decoder</h3>
+    <div class="tw"><table>
+      <thead><tr><th>Message</th><th>Fix</th></tr></thead>
+      <tbody>
+        <tr><td><code>src refspec main does not match any</code></td><td>No commits yet, or the branch is <code>master</code>: commit, then <code>git branch -M main</code></td></tr>
+        <tr><td><code>remote origin already exists</code></td><td><code>git remote set-url origin URL</code></td></tr>
+        <tr><td><code>rejected ... fetch first</code></td><td>GitHub has commits you don't (e.g. a README): <code>git pull origin main --allow-unrelated-histories</code>, then push</td></tr>
+        <tr><td>Push "worked" but GitHub is empty</td><td>Staged but never committed</td></tr>
+        <tr><td><code>The following paths are ignored</code></td><td>It's in <code>.gitignore</code>: working as intended</td></tr>
+        <tr><td><code>detached HEAD</code></td><td>You checked out an old commit: <code>git switch main</code></td></tr>
+      </tbody>
+    </table></div>
+    <label class="mark"><input type="checkbox" data-ch="github"> I've read this chapter</label>
+  </section>
+
+  <!-- 15 -->
+  <section class="ch" id="errors" data-title="Error decoder">
+    <div class="ch-head"><span class="ch-num">Chapter 15</span></div>
+    <h2>Shell error decoder</h2>
+    <p class="why">Read the message before asking anyone. Most errors are one of a few kinds.</p>
+    <div class="tw"><table>
+      <thead><tr><th>Message</th><th>Almost always means</th><th>Fix</th></tr></thead>
+      <tbody>
+        <tr><td><code>No such file or directory</code></td><td>Wrong folder or typo (<code>length.txt</code> vs <code>lengths.txt</code>)</td><td><code>pwd</code>, <code>ls</code>, use Tab</td></tr>
+        <tr><td><code>command not found</code></td><td>Typo, missing space (<code>ls-F</code>), wrong shell, tool missing (<code>wget</code>), or the first word wasn't a command</td><td>Check spelling and prompt</td></tr>
+        <tr><td><code>script.sh: command not found</code></td><td>The shell doesn't look in the current folder</td><td><code>./script.sh</code> or <code>bash script.sh</code></td></tr>
+        <tr><td><code>&gt;</code> prompt instead of <code>$</code></td><td>Unfinished command (open quote, trailing <code>\</code>)</td><td><kbd>Ctrl</kbd>+<kbd>C</kbd></td></tr>
+        <tr><td><code>^[[200~ ... ~</code> junk</td><td>Pasted with Ctrl+V in Git Bash</td><td><kbd>Shift</kbd>+<kbd>Insert</kbd></td></tr>
+        <tr><td><code>Not a directory</code></td><td><code>cd</code> into a file</td><td><code>ls -F</code></td></tr>
+        <tr><td><code>Is a directory</code></td><td><code>rm</code> a folder without <code>-r</code></td><td><code>rm -r</code>, after <code>ls</code></td></tr>
+        <tr><td><code>File exists</code></td><td>Name already used (case-insensitive on Windows)</td><td><code>ls</code>, or <code>mkdir -p</code></td></tr>
+        <tr><td><code>too many arguments</code></td><td>Unquoted space, or a wildcard matched several folders</td><td>Quote the path</td></tr>
+        <tr><td><code>missing operand</code></td><td>Command needs more (<code>chmod</code> alone)</td><td><code>chmod +x file</code></td></tr>
+        <tr><td><code>target ... is not a directory</code></td><td>Multi-file <code>cp</code> needs a folder last</td><td>Use a folder, or a loop</td></tr>
+        <tr><td><code>Permission denied</code> running a script</td><td>No <code>x</code> permission</td><td><code>chmod +x</code> or <code>bash script.sh</code></td></tr>
+        <tr><td><code>delimiter must be a single character</code></td><td><code>cut -d</code> got two characters</td><td>One char; tab = <code>$'\t'</code> or omit</td></tr>
+        <tr><td>Command just sits there</td><td>Waiting for input: you forgot the filename</td><td><kbd>Ctrl</kbd>+<kbd>C</kbd>, add the filename</td></tr>
+        <tr><td><code>Connection reset</code></td><td>SSH dropped; you're back on your laptop</td><td>Reconnect; use keep-alive</td></tr>
+      </tbody>
+    </table></div>
+    <label class="mark"><input type="checkbox" data-ch="errors"> I've read this chapter</label>
+  </section>
+
+  <!-- 16 -->
+  <section class="ch" id="cheat" data-title="Cheat sheet">
+    <div class="ch-head"><span class="ch-num">Chapter 16</span></div>
+    <h2>Searchable cheat sheet</h2>
+    <p class="why">Every command in this guide, one line each.</p>
+    <input class="search" id="cheatSearch" type="search" placeholder="Filter, e.g. copy, git, column, delete…" aria-label="Filter commands">
+    <div class="tw"><table id="cheatTable">
+      <thead><tr><th>Command</th><th>Does</th><th>Area</th></tr></thead>
+      <tbody>
+        <tr><td><code>pwd</code></td><td>Where am I</td><td>navigate</td></tr>
+        <tr><td><code>ls -F / -a / -lh / -lhrt</code></td><td>List: markers / hidden / details / newest last</td><td>navigate</td></tr>
+        <tr><td><code>cd dir · cd .. · cd ~ · cd -</code></td><td>Move: into / up / home / back</td><td>navigate</td></tr>
+        <tr><td><code>cat · head -n N · tail -n N · less</code></td><td>Look inside files</td><td>view</td></tr>
+        <tr><td><code>zcat file.gz | head</code></td><td>Peek inside a compressed file</td><td>view</td></tr>
+        <tr><td><code>wc -l</code></td><td>Count lines</td><td>data</td></tr>
+        <tr><td><code>sort · sort -n · sort -u</code></td><td>Sort text / numbers / unique</td><td>data</td></tr>
+        <tr><td><code>cut -d , -f 2</code></td><td>Pull out a column</td><td>data</td></tr>
+        <tr><td><code>uniq · uniq -c</code></td><td>Remove / count neighbouring duplicates</td><td>data</td></tr>
+        <tr><td><code>grep -i -n -c -w -v word file</code></td><td>Search text</td><td>data</td></tr>
+        <tr><td><code>| · &gt; · &gt;&gt;</code></td><td>Pipe / save (overwrite) / append</td><td>combine</td></tr>
+        <tr><td><code>* · ? · [ab]</code></td><td>Wildcards: any / one / one of</td><td>combine</td></tr>
+        <tr><td><code>mkdir -p · touch</code></td><td>New folder(s) / empty file</td><td>files</td></tr>
+        <tr><td><code>nano file</code></td><td>Edit text (Ctrl+O save, Ctrl+X exit)</td><td>files</td></tr>
+        <tr><td><code>echo text &gt; file</code></td><td>Write a line to a file</td><td>files</td></tr>
+        <tr><td><code>cp · cp -r</code></td><td>Copy file / folder</td><td>files</td></tr>
+        <tr><td><code>mv</code></td><td>Move or rename</td><td>files</td></tr>
+        <tr><td><code>rm · rm -r · rmdir</code></td><td>Delete file / folder / empty folder (permanent)</td><td>files</td></tr>
+        <tr><td><code>curl -L -O URL · unzip · gunzip</code></td><td>Download / extract</td><td>files</td></tr>
+        <tr><td><code>chmod +x · chmod g+r</code></td><td>Make runnable / let group read</td><td>permissions</td></tr>
+        <tr><td><code>for f in *.x; do ...; done</code></td><td>Repeat per file</td><td>loops</td></tr>
+        <tr><td><code>{1..10}</code></td><td>Number sequence</td><td>loops</td></tr>
+        <tr><td><code>./script.sh · bash script.sh</code></td><td>Run a script</td><td>scripts</td></tr>
+        <tr><td><code>$1 · "$@" · $# · $(date)</code></td><td>Arguments / all of them / how many / command output</td><td>scripts</td></tr>
+        <tr><td><code>which program</code></td><td>Where is it installed</td><td>scripts</td></tr>
+        <tr><td><code>ssh user@host · exit</code></td><td>Log in to / out of a server</td><td>remote</td></tr>
+        <tr><td><code>scp src dest · scp -r</code></td><td>Copy to/from a server</td><td>remote</td></tr>
+        <tr><td><code>who · w · top · nvidia-smi · df -h</code></td><td>What's happening on a server</td><td>remote</td></tr>
+        <tr><td><code>sinfo · squeue · sbatch · scancel</code></td><td>SLURM queue</td><td>remote</td></tr>
+        <tr><td><code>git init · git branch -M main</code></td><td>Start a repo</td><td>git</td></tr>
+        <tr><td><code>git status · add -A · commit -m</code></td><td>The everyday cycle</td><td>git</td></tr>
+        <tr><td><code>git log --oneline · git diff · git show X:f</code></td><td>History / changes / old version</td><td>git</td></tr>
+        <tr><td><code>git restore f · --source X · --staged</code></td><td>Undo edits / older version / unstage</td><td>git</td></tr>
+        <tr><td><code>git revert X · git reset --hard X</code></td><td>Undo safely / throw away (local only)</td><td>git</td></tr>
+        <tr><td><code>git rm --cached f</code></td><td>Stop tracking, keep file</td><td>git</td></tr>
+        <tr><td><code>git remote add origin URL</code></td><td>Connect to GitHub</td><td>github</td></tr>
+        <tr><td><code>git push -u origin main · git pull</code></td><td>Upload / download commits</td><td>github</td></tr>
+        <tr><td><code>git clone URL</code></td><td>Download a repo</td><td>github</td></tr>
+      </tbody>
+    </table></div>
+    <label class="mark"><input type="checkbox" data-ch="cheat"> I've read this chapter</label>
+  </section>
+
+  <!-- 17 -->
+  <section class="ch" id="check" data-title="Final self-check">
+    <div class="ch-head"><span class="ch-num">Chapter 17</span></div>
+    <h2>Final self-check</h2>
+    <p class="why">Answer out loud before opening each one. If you can explain all ten, you could teach this.</p>
+    <details class="q"><summary>1. What's the difference between <code>&gt;</code> and <code>&gt;&gt;</code>? And between the <code>&gt;</code> you type and the one the shell shows?</summary><div class="a">Overwrite vs append. Typed <code>&gt;</code> redirects output; a printed <code>&gt;</code> is a prompt waiting for you to finish the command.</div></details>
+    <details class="q"><summary>2. Why does <code>uniq</code> need <code>sort</code>?</summary><div class="a">It only removes duplicates that are next to each other.</div></details>
+    <details class="q"><summary>3. Inside a script, what are <code>$1</code>, <code>"$@"</code>? Inside a loop, <code>$filename</code>?</summary><div class="a">First argument; all arguments; the current item of the loop.</div></details>
+    <details class="q"><summary>4. Give three reasons for "No such file or directory".</summary><div class="a">Wrong folder; typo; file one level deeper (or a path with an unquoted space).</div></details>
+    <details class="q"><summary>5. When do you need a loop instead of a wildcard?</summary><div class="a">When each file needs its own new name or its own command, e.g. <code>cp $f original-$f</code>. <code>cp *.dat backup/</code> works with a wildcard alone.</div></details>
+    <details class="q"><summary>6. Why keep research code and data out of OneDrive?</summary><div class="a">Spaces in paths, long paths, and cloud sync conflicting with scripts and Git (locked files, duplicates, corrupted <code>.git</code>). Use Git + GitHub for backup.</div></details>
+    <details class="q"><summary>7. Your script says "Permission denied" on a cluster. Two fixes? And the fix not to use?</summary><div class="a"><code>chmod +x script.sh</code> or <code>bash script.sh</code>. Never <code>chmod 777</code>.</div></details>
+    <details class="q"><summary>8. You committed and pushed a bad change. How do you undo it?</summary><div class="a"><code>git revert &lt;id&gt;</code> (or restore the file from an older commit and commit that). Not <code>reset --hard</code>.</div></details>
+    <details class="q"><summary>9. A 90 MB file just got staged. What do you do before committing?</summary><div class="a">Add its pattern to <code>.gitignore</code>, <code>git rm --cached</code> it, <code>git add .gitignore</code>, check with <code>git check-ignore -v</code>, then commit.</div></details>
+    <details class="q"><summary>10. Your GitHub Pages URL gives 404. First two things you check?</summary><div class="a"><code>git status</code> (is the file untracked/modified?) and whether it's in the GitHub file list (was it pushed?). Then Settings → Pages.</div></details>
+    <label class="mark"><input type="checkbox" data-ch="check"> I've read this chapter</label>
+  </section>
+
+  <footer>
+    Built from a Software Carpentry workshop hosted by UIdaho IMCI, November 2026. Lesson material: <a href="https://swcarpentry.github.io/shell-novice/">The Unix Shell</a> and <a href="https://swcarpentry.github.io/git-novice/">Version Control with Git</a> (Software Carpentry, CC BY 4.0) and <a href="https://evanwill.github.io/get-git-b/">Get Git</a>. Back to <a href="./">Shell Lesson Data</a>.
+  </footer>
+</main>
+</div>
+
+<script>
+(function () {
+  const sections = [...document.querySelectorAll("section.ch")];
+  const toc = document.getElementById("tocList");
+  const jump = document.getElementById("jump");
+  const KEY = "fieldguide-done";
+
+  let done = {};
+  try { done = JSON.parse(localStorage.getItem(KEY) || "{}"); } catch (e) { done = {}; }
+  const save = () => { try { localStorage.setItem(KEY, JSON.stringify(done)); } catch (e) {} };
+
+  sections.forEach((s, i) => {
+    const li = document.createElement("li");
+    li.innerHTML = `<a href="#${s.id}" data-id="${s.id}"><span class="n">${i}</span><span>${s.dataset.title}</span><span class="done-mark">✓</span></a>`;
+    toc.appendChild(li);
+    const o = document.createElement("option");
+    o.value = s.id; o.textContent = `${i}. ${s.dataset.title}`;
+    jump.appendChild(o);
+  });
+  jump.addEventListener("change", () => { if (jump.value) location.hash = jump.value; });
+
+  function refresh() {
+    let n = 0;
+    document.querySelectorAll(".mark input").forEach(cb => {
+      const id = cb.dataset.ch;
+      cb.checked = !!done[id];
+      cb.closest(".mark").classList.toggle("on", cb.checked);
+      const a = toc.querySelector(`a[data-id="${id}"]`);
+      if (a) a.classList.toggle("done", cb.checked);
+      if (cb.checked) n++;
+    });
+    document.getElementById("progText").textContent = `${n} of ${sections.length} chapters done`;
+    document.getElementById("progBar").style.width = (n / sections.length * 100) + "%";
+  }
+  document.querySelectorAll(".mark input").forEach(cb => cb.addEventListener("change", () => {
+    done[cb.dataset.ch] = cb.checked; save(); refresh();
+  }));
+  refresh();
+
+  // highlight current chapter in the sidebar
+  const links = [...toc.querySelectorAll("a")];
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) links.forEach(l => l.classList.toggle("active", l.dataset.id === e.target.id));
+    });
+  }, { rootMargin: "-20% 0px -70% 0px" });
+  sections.forEach(s => obs.observe(s));
+
+  // copy buttons on code blocks
+  document.querySelectorAll("pre").forEach(pre => {
+    const b = document.createElement("button");
+    b.className = "copy"; b.type = "button"; b.textContent = "Copy";
+    b.addEventListener("click", () => {
+      const text = [...pre.childNodes].filter(n => n !== b).map(n => n.textContent).join("")
+        .split("\n").map(line => line.replace(/\s+#\s.*$/, "")).join("\n").trim();
+      const done = () => { b.textContent = "Copied"; setTimeout(() => b.textContent = "Copy", 1200); };
+      if (navigator.clipboard) navigator.clipboard.writeText(text).then(done, () => {}); else done();
+    });
+    pre.appendChild(b);
+  });
+
+  // cheat sheet filter
+  const q = document.getElementById("cheatSearch");
+  const rows = [...document.querySelectorAll("#cheatTable tbody tr")];
+  q.addEventListener("input", () => {
+    const t = q.value.trim().toLowerCase();
+    rows.forEach(r => { r.style.display = !t || r.textContent.toLowerCase().includes(t) ? "" : "none"; });
+  });
+})();
+</script>
+</body>
+</html>

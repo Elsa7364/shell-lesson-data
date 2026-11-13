@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shell Lesson Data</title>
+<meta name="description" content="Marwa's working copy of the Software Carpentry shell lesson data, built during the UIdaho IMCI Carpentries workshop (Nov 2026).">
+<style>
+  :root {
+    --bg: #fbfaf7;
+    --surface: #ffffff;
+    --ink: #1d1d1b;
+    --muted: #5f5d57;
+    --line: #e4e1d8;
+    --accent: #b8860b;
+    --accent-soft: #fbf3dc;
+    --code-bg: #1f1f1d;
+    --code-ink: #f1efe8;
+    --bar: #c99a2e;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #151514;
+      --surface: #1e1e1c;
+      --ink: #ecebe6;
+      --muted: #a6a39a;
+      --line: #33322e;
+      --accent: #e0b04a;
+      --accent-soft: #2a2416;
+      --code-bg: #0e0e0d;
+      --code-ink: #ecebe6;
+      --bar: #e0b04a;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  a { color: var(--accent); text-underline-offset: 2px; }
+  code, pre { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 0 16px; }
+
+  header { padding: 56px 0 32px; border-bottom: 1px solid var(--line); }
+  .eyebrow { color: var(--muted); font-size: 14px; letter-spacing: .04em; text-transform: uppercase; margin: 0 0 8px; }
+  h1 { font-size: clamp(32px, 6vw, 48px); line-height: 1.1; margin: 0 0 12px; }
+  .lede { font-size: 18px; color: var(--muted); max-width: 640px; margin: 0 0 24px; }
+  .btns { display: flex; flex-wrap: wrap; gap: 10px; }
+  .btn {
+    display: inline-block; padding: 8px 14px; border-radius: 8px;
+    border: 1px solid var(--line); background: var(--surface);
+    color: var(--ink); text-decoration: none; font-size: 15px;
+  }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #1d1d1b; font-weight: 600; }
+
+  section { padding: 40px 0; border-bottom: 1px solid var(--line); }
+  h2 { font-size: 24px; margin: 0 0 6px; }
+  .sub { color: var(--muted); margin: 0 0 24px; }
+
+  .grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+  .card {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+    padding: 18px; display: flex; flex-direction: column; gap: 8px;
+  }
+  .card h3 { margin: 0; font-size: 17px; }
+  .card h3 code { font-size: 15px; }
+  .card p { margin: 0; color: var(--muted); font-size: 15px; }
+  .meta { font-size: 13px; color: var(--muted); }
+  .card a.more { margin-top: auto; font-size: 14px; }
+
+  pre {
+    background: var(--code-bg); color: var(--code-ink); border-radius: 10px;
+    padding: 14px 16px; overflow-x: auto; font-size: 14px; line-height: 1.5; margin: 0;
+  }
+  .two { display: grid; gap: 14px; grid-template-columns: 1fr; }
+  @media (min-width: 760px) { .two { grid-template-columns: 1fr 1fr; } }
+
+  .bars { display: grid; gap: 8px; }
+  .bar-row { display: grid; grid-template-columns: 90px 1fr 36px; align-items: center; gap: 10px; font-size: 14px; }
+  .bar-track { background: var(--accent-soft); border-radius: 6px; height: 14px; }
+  .bar { background: var(--bar); height: 14px; border-radius: 6px; }
+  .num { text-align: right; font-variant-numeric: tabular-nums; color: var(--muted); }
+
+  table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { color: var(--muted); font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: .04em; }
+  td code { white-space: nowrap; }
+  .table-scroll { overflow-x: auto; }
+
+  .timeline { list-style: none; padding: 0; margin: 0; display: grid; gap: 14px; }
+  .timeline li { display: grid; grid-template-columns: 92px 1fr; gap: 14px; }
+  .when { color: var(--accent); font-weight: 600; font-size: 14px; padding-top: 2px; }
+  .timeline p { margin: 0; color: var(--muted); }
+  .timeline strong { color: var(--ink); }
+
+  .note { background: var(--accent-soft); border-radius: 10px; padding: 14px 16px; font-size: 15px; }
+  footer { padding: 32px 0 48px; color: var(--muted); font-size: 14px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <p class="eyebrow">Software Carpentry · UIdaho IMCI · November 2026</p>
+    <h1>Shell Lesson Data</h1>
+    <p class="lede">My working copy of the Carpentries shell lesson files: the small datasets, scripts, and practice folders I used to learn the Unix shell and Git, now tracked with version control.</p>
+    <div class="btns">
+      <a class="btn primary" href="https://github.com/Elsa7364/shell-lesson-data">View the repository</a>
+      <a class="btn" href="https://swcarpentry.github.io/shell-novice/">The Unix Shell lesson</a>
+      <a class="btn" href="https://evanwill.github.io/get-git-b/">Get Git guide</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section>
+    <div class="wrap">
+      <h2>What's in here</h2>
+      <p class="sub">Each folder is a small dataset the lesson uses to practise a different skill.</p>
+      <div class="grid">
+        <div class="card">
+          <h3><code>exercise-data/creatures</code></h3>
+          <p>Three fictional animals (basilisk, minotaur, unicorn), each with a short header and a DNA-like sequence.</p>
+          <span class="meta">3 files · used for loops</span>
+          <a class="more" href="https://github.com/Elsa7364/shell-lesson-data/tree/main/exercise-data/creatures">Browse →</a>
+        </div>
+        <div class="card">
+          <h3><code>exercise-data/alkanes</code></h3>
+          <p>Atom coordinates for six small molecules in <code>.pdb</code> format, plus my scripts and line-count outputs.</p>
+          <span class="meta">6 molecules · used for wc, sort, scripts</span>
+          <a class="more" href="https://github.com/Elsa7364/shell-lesson-data/tree/main/exercise-data/alkanes">Browse →</a>
+        </div>
+        <div class="card">
+          <h3><code>exercise-data/animal-counts</code></h3>
+          <p>A tiny CSV of wildlife sightings: date, species, count.</p>
+          <span class="meta">8 rows · used for cut, sort, uniq</span>
+          <a class="more" href="https://github.com/Elsa7364/shell-lesson-data/blob/main/exercise-data/animal-counts/animals.csv">View →</a>
+        </div>
+        <div class="card">
+          <h3><code>exercise-data/writing</code></h3>
+          <p>A haiku and the full text of <em>Little Women</em> (21,022 lines) for searching text.</p>
+          <span class="meta">used for grep</span>
+          <a class="more" href="https://github.com/Elsa7364/shell-lesson-data/tree/main/exercise-data/writing">Browse →</a>
+        </div>
+        <div class="card">
+          <h3><code>north-pacific-gyre</code></h3>
+          <p>17 sample files (<code>NENE*.txt</code>) from a fictional ocean study, plus the <code>goostats.sh</code> and <code>goodiff.sh</code> scripts. <code>raw/</code> is my backup copy.</p>
+          <span class="meta">17 data files · used for wildcards, permissions</span>
+          <a class="more" href="https://github.com/Elsa7364/shell-lesson-data/tree/main/north-pacific-gyre">Browse →</a>
+        </div>
+        <div class="card">
+          <h3><code>thesis_v1</code></h3>
+          <p>A practice "thesis" folder for creating, copying, moving, and versioning files, and my first shell script.</p>
+          <span class="meta">used for mkdir, nano, cp, mv</span>
+          <a class="more" href="https://github.com/Elsa7364/shell-lesson-data/tree/main/thesis_v1">Browse →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <h2>A quick look at the data</h2>
+      <p class="sub">Two results I produced with one-line pipelines.</p>
+      <div class="two">
+        <div class="card">
+          <h3>Molecule size (lines per <code>.pdb</code> file)</h3>
+          <pre>wc -l *.pdb | sort -n | head -n 6</pre>
+          <div class="bars" aria-label="Line counts per alkane file">
+            <div class="bar-row"><span>methane</span><div class="bar-track"><div class="bar" style="width:30%"></div></div><span class="num">9</span></div>
+            <div class="bar-row"><span>ethane</span><div class="bar-track"><div class="bar" style="width:40%"></div></div><span class="num">12</span></div>
+            <div class="bar-row"><span>propane</span><div class="bar-track"><div class="bar" style="width:50%"></div></div><span class="num">15</span></div>
+            <div class="bar-row"><span>cubane</span><div class="bar-track"><div class="bar" style="width:66.7%"></div></div><span class="num">20</span></div>
+            <div class="bar-row"><span>pentane</span><div class="bar-track"><div class="bar" style="width:70%"></div></div><span class="num">21</span></div>
+            <div class="bar-row"><span>octane</span><div class="bar-track"><div class="bar" style="width:100%"></div></div><span class="num">30</span></div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Sightings per species (rows in <code>animals.csv</code>)</h3>
+          <pre>cut -d , -f 2 animals.csv | sort | uniq -c</pre>
+          <div class="bars" aria-label="Rows per species">
+            <div class="bar-row"><span>rabbit</span><div class="bar-track"><div class="bar" style="width:100%"></div></div><span class="num">3</span></div>
+            <div class="bar-row"><span>deer</span><div class="bar-track"><div class="bar" style="width:66.7%"></div></div><span class="num">2</span></div>
+            <div class="bar-row"><span>bear</span><div class="bar-track"><div class="bar" style="width:33.3%"></div></div><span class="num">1</span></div>
+            <div class="bar-row"><span>fox</span><div class="bar-track"><div class="bar" style="width:33.3%"></div></div><span class="num">1</span></div>
+            <div class="bar-row"><span>raccoon</span><div class="bar-track"><div class="bar" style="width:33.3%"></div></div><span class="num">1</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <h2>Scripts</h2>
+      <p class="sub">Shell scripts are just the commands you'd type, saved in a file so they can be re-run.</p>
+      <div class="two">
+        <div class="card">
+          <h3><code>middle.sh</code></h3>
+          <p>Print lines from the middle of any file.</p>
+          <pre>#!/bin/bash
+head -n "$2" "$1" | tail -n "$3"
+
+# bash middle.sh octane.pdb 15 5</pre>
+        </div>
+        <div class="card">
+          <h3><code>sorted.sh</code></h3>
+          <p>Rank any number of files by length.</p>
+          <pre>wc -l "$@" | sort -n
+
+# bash sorted.sh *.pdb ../creatures/*.dat</pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <h2>Commands I learned</h2>
+      <p class="sub">The core toolkit from the first four sessions.</p>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Command</th><th>What it does</th></tr></thead>
+          <tbody>
+            <tr><td><code>pwd</code> · <code>ls -lhrt</code> · <code>cd ..</code></td><td>Find out where I am, see what's here, move around</td></tr>
+            <tr><td><code>head</code> · <code>tail</code> · <code>less</code> · <code>cat</code></td><td>Look inside files without opening them</td></tr>
+            <tr><td><code>mkdir</code> · <code>cp</code> · <code>mv</code> · <code>rm -r</code></td><td>Create, copy, move/rename, delete (no undo!)</td></tr>
+            <tr><td><code>wc -l</code> · <code>sort -n</code> · <code>cut -d , -f 2</code> · <code>uniq -c</code></td><td>Count, sort, pull out a column, count repeats</td></tr>
+            <tr><td><code>|</code> · <code>&gt;</code> · <code>&gt;&gt;</code> · <code>*</code> · <code>?</code></td><td>Chain commands, save or append output, match many files</td></tr>
+            <tr><td><code>for f in *.dat; do ...; done</code></td><td>Repeat a command for every file</td></tr>
+            <tr><td><code>chmod +x</code> · <code>./script.sh</code></td><td>Make a script runnable and run it</td></tr>
+            <tr><td><code>git status</code> · <code>add</code> · <code>commit</code> · <code>push</code></td><td>Save snapshots of this project and publish them here</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <h2>How this repo came together</h2>
+      <p class="sub">Workshop sessions, Tuesdays and Thursdays, IRIC 352.</p>
+      <ol class="timeline">
+        <li><span class="when">Nov 3</span><p><strong>Navigating the shell.</strong> Downloaded the lesson data, learned paths, <code>ls</code>, <code>cd</code>, pipes, and wildcards.</p></li>
+        <li><span class="when">Nov 5</span><p><strong>Working with files.</strong> Built <code>thesis_v1</code>, backed up the gyre data to <code>raw/</code>, and learned <code>cut</code>, <code>uniq</code>, and permissions.</p></li>
+        <li><span class="when">Nov 10</span><p><strong>Loops and scripts.</strong> Automated repetitive work with <code>for</code> loops and reusable scripts like <code>middle.sh</code>.</p></li>
+        <li><span class="when">Nov 12</span><p><strong>Git and GitHub.</strong> Turned this folder into a repository, added a <code>.gitignore</code>, and pushed it here.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="note"><strong>Not everything is tracked.</strong> A 90 MB UniProt protein file (<code>uniprot_sprot.fasta.gz</code>) lives in my local copy but is kept out of the repository by <code>.gitignore</code> (<code>*.gz</code>, <code>*.fasta</code>). Large data belongs elsewhere; the repo tracks code and small files.</div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    Lesson materials from <a href="https://swcarpentry.github.io/shell-novice/">Software Carpentry</a> (CC BY 4.0). Workshop hosted by UIdaho IMCI. Page by <a href="https://github.com/Elsa7364">Elsa7364</a>.
+  </div>
+</footer>
+
+</body>
+</html>
